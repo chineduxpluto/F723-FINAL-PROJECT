@@ -1,5 +1,5 @@
 class SeatBookingSystem:
-    def __init(self):
+    def __init__(self):
         """
             Initialize the seat booking system with a seat layout for a fictional aircraft.
             The seats are organized into a dictionary with keys as seat identifiers (e.g., '1A', '1B', ...)
