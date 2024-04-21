@@ -85,3 +85,38 @@ class SeatBookingSystem:
         for seat_id, status in self.seats.items():
             result.append(f"{seat_id}: {'Booked' if status == 'R' else 'Free' if status == 'F' else 'Unavailable'}")
         return "\n".join(result)
+
+    def run(self):
+        """
+        Run the command line interface for the seat booking system. Presents a menu and handles user interactions.
+        """
+        menu = """
+        1. Check seat availability
+        2. Book a seat
+        3. Free a seat
+        4. Show booking state
+        5. Exit
+        """
+        while True:
+            print(menu)
+            choice = input("Choose an option: ")
+            if choice == '1':
+                seat_id = input("Enter seat ID to check availability (e.g., 1A): ")
+                print(self.check_seat_availability(seat_id))
+            elif choice == '2':
+                seat_id = input("Enter seat ID to book (e.g., 1A): ")
+                print(self.book_seat(seat_id))
+            elif choice == '3':
+                seat_id = input("Enter seat ID to free (e.g., 1A): ")
+                print(self.free_seat(seat_id))
+            elif choice == '4':
+                print(self.show_booking_state())
+            elif choice == '5':
+                print("Exiting the program.")
+                break
+            else:
+                print("Invalid option, please try again.")
+
+if __name__ == "__main__":
+    system = SeatBookingSystem()
+    system.run()
