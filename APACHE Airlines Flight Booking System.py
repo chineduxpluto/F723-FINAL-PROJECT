@@ -1,3 +1,6 @@
+import random
+import string
+
 class SeatBookingSystem:
     def __init__(self):
         """
@@ -6,6 +9,7 @@ class SeatBookingSystem:
             and values as the seat status ('F' for free, 'X' for aisle, 'S' for storage, 'R' for reserved).
         """
         self.seats = {}
+        self.bookings = {}
         rows = range(1, 81)  # Rows from 1 to 80
         columns = ['A', 'B', 'C', 'D', 'E', 'F'] # Columns labeled from A to F.
         # Example fill in based on a simple pattern
@@ -19,6 +23,15 @@ class SeatBookingSystem:
                 else:
                     self.seats[seat_id] = 'F'
 
+    def generate_unique_booking_reference(self):
+        """Generate a unique booking reference that has not been produced before."""
+        while True:
+            # Generate a random 8-character alphanumeric string
+            reference = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+            # Check if this reference has already been used
+            if reference not in self.bookings:
+                return reference # Return the reference only if it's not it's not already in use
+
     def check_seat_availability(self, seat_id):
         """
         Check the availability of a specified seat.
@@ -30,17 +43,20 @@ class SeatBookingSystem:
         str: A message indicating whether the seat is free, booked, not available, or invalid.
         """
         if seat_id in self.seats:
-            if self.seats[seat_id] == 'F':
+            status = self.seats[seat_id]
+            if status == 'F':
                 return f"Seat {seat_id} is free."
-            elif self.seats[seat_id] == 'R':
-                return f"Seat {seat_id} is already booked."
-            else:
-                return f"Seat {seat_id} is not available for booking (isle or storage)."
+            elif status == 'R':
+                # Retrieve the booking reference for the occupied seat to provide detailed feedback
+                reference = next(ref for ref, seat in self.bookings.items() if seat == seat_id)
+                return f"Seat {seat_id} is already booked (Reference: {reference})."
+            elif status in ['X', 'S']:
+                return f"Seat {seat_id} is not available for booking (Marked as {'aisle' if status == 'X' else 'storage'})."
         return "Invalid seat ID."
 
     def book_seat(self, seat_id):
         """
-        Book a seat if it is available.
+        Book a seat if it is available with a unique booking reference
 
         Parameters:
         seat_id (str): The identifier for the seat to book.
@@ -48,13 +64,15 @@ class SeatBookingSystem:
         Returns:
         str: A message indicating success if the seat is booked or why the booking failed.
         """
-        if seat_id in self.seats:
-            if self.seats[seat_id] == 'F':
-                self.seats[seat_id] = 'R'
-                return f"Seat {seat_id} has been successfully booked."
-            elif self.seats[seat_id] in ['R', 'X', 'S']:
-                return f"Seat {seat_id} cannot be booked."
-        return "Invalid seat ID."
+        if seat_id in self.seats and self.seats[seat_id] == 'F':
+            reference = self.generate_unique_booking_reference()
+            self.seats[seat_id] = 'R'  # Mark the seat as reserved
+            self.bookings[reference] = seat_id  # Map the booking reference to the seat ID
+            return f"Seat {seat_id} has been successfully booked with reference {reference}."
+        elif seat_id in self.seats:
+            return f"Seat {seat_id} cannot be booked."
+        else:
+            return "Invalid seat ID."
 
     def free_seat(self, seat_id):
         """
@@ -66,13 +84,16 @@ class SeatBookingSystem:
         Returns:
         str: A message indicating whether the seat was freed or the reason it couldn't be freed.
         """
-        if seat_id in self.seats:
-            if self.seats[seat_id] == 'R':
-                self.seats[seat_id] = 'F'
-                return f"Seat {seat_id} has been freed."
-            else:
-                return f"Seat {seat_id} is not currently booked or not bookable."
-        return "Invalid seat ID."
+        if seat_id in self.seats and self.seats[seat_id] == 'R':
+            # Find the booking reference associated with this seat
+            reference = next(ref for ref, seat in self.bookings.items() if seat == seat_id)
+            self.seats[seat_id] = 'F'  # Mark the seat as free
+            del self.bookings[reference]  # Remove the booking reference
+            return f"Seat {seat_id} has been freed, and booking reference {reference} removed."
+        elif seat_id in self.seats:
+            return f"Seat {seat_id} is not currently booked."
+        else:
+            return "Invalid seat ID."
 
     def show_booking_state(self):
         """
@@ -83,7 +104,11 @@ class SeatBookingSystem:
         """
         result = []
         for seat_id, status in self.seats.items():
-            result.append(f"{seat_id}: {'Booked' if status == 'R' else 'Free' if status == 'F' else 'Unavailable'}")
+            if status == 'R':
+                reference = next(ref for ref, seat in self.bookings.items() if seat == seat_id)
+                result.append(f"{seat_id}: Booked (Reference {reference})")
+            else:
+                result.append(f"{seat_id}: {'Free' if status == 'F' else 'Unavailable'}")
         return "\n".join(result)
 
     def run(self):
