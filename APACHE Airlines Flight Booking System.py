@@ -73,3 +73,15 @@ class SeatBookingSystem:
             else:
                 return f"Seat {seat_id} is not currently booked or not bookable."
         return "Invalid seat ID."
+
+    def show_booking_state(self):
+        """
+        Display the current booking state of all seats.
+
+        Returns:
+        str: A formatted string showing all seats and their current booking status.
+        """
+        result = []
+        for seat_id, status in self.seats.items():
+            result.append(f"{seat_id}: {'Booked' if status == 'R' else 'Free' if status == 'F' else 'Unavailable'}")
+        return "\n".join(result)
