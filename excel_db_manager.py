@@ -63,9 +63,7 @@ class ExcelDatabaseManager:
 
     def save_changes(self):
         """
-        Explicitly save changes to the Excel file to ensure data persistence.
-
-        This method is useful for confirming all changes are written to the disk.
+        Save changes to excel file
         """
         try:
             self.df.to_excel(self.filename, index=False, engine='openpyxl')
