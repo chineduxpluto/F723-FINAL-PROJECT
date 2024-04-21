@@ -55,3 +55,21 @@ class SeatBookingSystem:
             elif self.seats[seat_id] in ['R', 'X', 'S']:
                 return f"Seat {seat_id} cannot be booked."
         return "Invalid seat ID."
+
+    def free_seat(self, seat_id):
+        """
+        Free a booked seat, making it available again for booking.
+
+        Parameters:
+        seat_id (str): The identifier for the seat to free.
+
+        Returns:
+        str: A message indicating whether the seat was freed or the reason it couldn't be freed.
+        """
+        if seat_id in self.seats:
+            if self.seats[seat_id] == 'R':
+                self.seats[seat_id] = 'F'
+                return f"Seat {seat_id} has been freed."
+            else:
+                return f"Seat {seat_id} is not currently booked or not bookable."
+        return "Invalid seat ID."
