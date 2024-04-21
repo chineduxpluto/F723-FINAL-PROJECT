@@ -37,3 +37,21 @@ class SeatBookingSystem:
             else:
                 return f"Seat {seat_id} is not available for booking (isle or storage)."
         return "Invalid seat ID."
+
+    def book_seat(self, seat_id):
+        """
+        Book a seat if it is available.
+
+        Parameters:
+        seat_id (str): The identifier for the seat to book.
+
+        Returns:
+        str: A message indicating success if the seat is booked or why the booking failed.
+        """
+        if seat_id in self.seats:
+            if self.seats[seat_id] == 'F':
+                self.seats[seat_id] = 'R'
+                return f"Seat {seat_id} has been successfully booked."
+            elif self.seats[seat_id] in ['R', 'X', 'S']:
+                return f"Seat {seat_id} cannot be booked."
+        return "Invalid seat ID."
